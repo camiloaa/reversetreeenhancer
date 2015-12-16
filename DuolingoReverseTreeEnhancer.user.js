@@ -124,6 +124,7 @@ var lastSaidSlow = false;
 
 function googleTTSLang(targetLang) {
     if (targetLang == "dn") { return "nl"; }
+    if (targetLang == "zs") { return "zh"; }
     return targetLang;    
 }
 
