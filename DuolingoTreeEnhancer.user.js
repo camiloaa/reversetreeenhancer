@@ -102,7 +102,9 @@ var css_hiding_title = toStyleElem('._1Zqmf:' + css_hiding_style);
 
 /* Elements to hide: Translate questions & judge options */
 var css_hiding_target = toStyleElem('._1SfYc:' + css_hiding_style 
-        + '._31nDg:' + css_hiding_style);
+        + '._31nDg:' + css_hiding_style
+        + '._3_AmQ:' + css_hiding_style
+        + '_1SfYc _1qCW5:' + css_hiding_style);
 
 var css_hiding_pics = toStyleElem('._1o8rO { opacity: 0; } \n'
         + '.eSlsq { opacity: 0; } \n');
