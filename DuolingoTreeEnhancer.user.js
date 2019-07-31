@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Duolingo Tree Enhancer
 // @namespace    https://github.com/camiloaa/duolingotreeenhancer
-// @version      1.0.27
+// @version      1.0.28
 // @description  Enhance Duolingo by customizing difficulty and providing extra functionality. Based on Guillaume Brunerie's ReverseTreeEnhancer
 // @author       Camilo Arboleda
 // @match        https://www.duolingo.com/*
@@ -22,6 +22,8 @@ let K_CHALLENGE_TRANSLATE_QUESTION = "oR3Zt";
 let K_CHALLENGE_TRANSLATE_QUESTION_CSS = ".oR3Zt:not(:hover) "
 let K_CHALLENGE_TRANSLATE_ANSWER = "_7q434 _1qCW5 _2fPEB _3_NyK _1Juqt _3WbPm";
 let K_CHALLENGE_TRANSLATE_BANK = "_3xKXD";
+let K_CHALLENGE_SPEAK_QUESTION = "_3NU9I";
+let K_CHALLENGE_SPEAK_QUESTION_CSS = "._3NU9I:not(:hover) ";
 let K_CHALLENGE_JUDGE_QUESTION = "KRKEd";
 let K_CHALLENGE_JUDGE_QUESTION_CSS = ".KRKEd:not(:hover) ";
 let K_CHALLENGE_JUDGE_OPTIONS = "_2Ma9W";
@@ -101,18 +103,20 @@ var css_hiding_style = '{ color: ' + hColor
        + '!important; background-color: ' + hColor
        + '; border-color: ' + hColor + '; } \n';
 
-/* Elements to hide: Translate & judge questions */
+/* Elements to hide: Translate, judge, & speak questions */
 var css_hiding_source = toStyleElem(
        K_CHALLENGE_TRANSLATE_QUESTION_CSS + css_hiding_style
-       + K_CHALLENGE_JUDGE_QUESTION_CSS + css_hiding_style);
+       + K_CHALLENGE_JUDGE_QUESTION_CSS + css_hiding_style
+       + K_CHALLENGE_SPEAK_QUESTION_CSS + css_hiding_style);
 
 /* Elements to hide: Name & select questions */
 var css_hiding_title = toStyleElem('._1Zqmf:not(:hover) ' + css_hiding_style);
 
-/* Elements to hide: Translate questions & judge options */
+/* Elements to hide: Translate questions,judge options, & speak questions */
 var css_hiding_target = toStyleElem(
         K_CHALLENGE_TRANSLATE_QUESTION_CSS + css_hiding_style
-        + K_CHALLENGE_JUDGE_TEXT_CSS + css_hiding_style);
+        + K_CHALLENGE_JUDGE_TEXT_CSS + css_hiding_style
+        + K_CHALLENGE_SPEAK_QUESTION_CSS + css_hiding_style);
 
 var css_hiding_pics = toStyleElem('._1o8rO { opacity: 0; } \n'
         + '.eSlsq { opacity: 0; } \n');
@@ -445,6 +449,13 @@ function challengeTranslate() {
         }
     }
 
+}
+
+/* Speak question */
+function challengeSpeak() {
+    if(isHideText(targetLang)) {
+        addCSSHiding(challenge, css_hiding_target);
+    }
 }
 
 /* Multiple-choice translation question */
@@ -1090,6 +1101,10 @@ function onChange(mutations) {
 
             if (/translate/.test(newclass)) {
                 challengeTranslate();
+            }
+
+            if (/speak/.test(newclass)) {
+                challengeSpeak();
             }
 
             if (/judge/.test(newclass)) {
