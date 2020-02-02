@@ -1100,7 +1100,6 @@ function onChange(mutations) {
         newclass = isAnswer(mutations, newclass);
         // console.debug("[DuolingoTreeEnhancer] Challenge: " + newclass);
 
-        if (newclass != activeclass) {
             // console.debug("[DuolingoTreeEnhancer] Old class: " + activeclass);
             activeclass = newclass;
 
@@ -1114,30 +1113,9 @@ function onChange(mutations) {
             if (/translate/.test(newclass)) {
                 challengeTranslate();
             }
-
-            if (/speak/.test(newclass)) {
-                challengeSpeak();
-            }
-
-            if (/judge/.test(newclass)) {
-                challengeJudge();
-            }
-            if (/completeReverseTranslation/.test(newclass)) {
-                challengeComplete();
-            }
-            if (/select/.test(newclass)) {
-                challengeSelect();
-            }
-            if (/name/.test(newclass)) {
-                challengeName();
-            }
-            if (/form/.test(newclass)) {
-                challengeForm();
-            }
             if (/listen/.test(newclass)) {
                 challengeListen();
             }
-        }
     }
 
     if (/certification_test/.test(newclass)) {
