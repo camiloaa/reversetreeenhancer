@@ -373,6 +373,44 @@ function playURL(url, lang, speaker_button) {
     audio.load();
 }
 
+// play OS TTS
+function playTTS(url, lang, speaker_button) {
+    let synth = window.speechSynthesis;
+    let voices = window.speechSynthesis.getVoices();
+    let voiceSelect;
+    for (let i = 0; i < voices.length; i++) {
+        if(voices[i].lang.includes(lang)) {
+            voiceSelect = i;
+        }
+    }
+    let utter = new SpeechSynthesisUtterance(url);
+    utter.voice = voices[voiceSelect];
+
+    var div = document.getElementById("empty-play-button-cm");
+    if (div != null) {
+        var play_button = document.createElement('div');
+        play_button.style = K_SPEAKER_ICON_STYLE;
+        // play_button.appendChild(audio);
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("width", "28");
+        svg.setAttribute("height", "32");
+        svg.setAttribute("version", "1.1");
+        var ellipse = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+        ellipse.setAttribute("cx", "17");
+        ellipse.setAttribute("cy", "17");
+        ellipse.setAttribute("rx", "10");
+        ellipse.setAttribute("ry", "10");
+        ellipse.style = "fill:none;stroke:#EEEEEE;stroke-width:5;stroke-linecap:round";
+        svg.appendChild(ellipse);
+        play_button.appendChild(svg);
+        div.addEventListener('click',function(){synth.speak(utter);});
+        div.removeAttribute("id"); // Make it anonymous
+        div.appendChild(play_button);
+    } else {
+        speaker_button.insertBefore(audio, document.body);
+    }
+}
+
 // Play a sentence using the first available TTS
 function playSound(sentence, lang, speaker_button) {
     var url = "";
@@ -399,6 +437,11 @@ function googleTTSLang(target) {
         return "zh";
     }
     return target;
+}
+
+function osttsSay(sentence, lang, speaker_button) {
+    playTTS(sentence, lang, speaker_button);
+    return true;
 }
 
 function googleSay(sentence, lang, speaker_button) {
@@ -487,7 +530,8 @@ var sayFunc = new Array();
 sayFunc['baidu'] = baiduSay;
 sayFunc['google'] = googleSay;
 sayFunc['yandex'] = yandexSay;
-var sayFuncOrder = [ 'baidu', 'yandex', 'google', ];
+sayFunc['ostts'] = osttsSay;
+var sayFuncOrder = [ 'ostts', 'baidu', 'yandex', 'google', ];
 
 function insertNodeAfter(node, after) {
     if (after.nextSibling != null) {
@@ -965,7 +1009,7 @@ function updateConfig() {
                 'label' : 'List of TTS services ',
                 'labelPos' : 'left',
                 'type' : 'text', // Makes this setting a text field
-                'default' : 'google yandex baidu'
+                'default' : 'ostts google yandex baidu'
             },
         },
         full_css : [
