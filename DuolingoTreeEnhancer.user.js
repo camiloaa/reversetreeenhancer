@@ -416,6 +416,13 @@ function playTTS(url, lang, speaker_button) {
     } else {
         speaker_button.insertBefore(audio, document.body);
     }
+    /*
+    In case if OS TTS struggles playing after some challenges.
+    I don't have time to test it, so it's a hint for other programmers.
+    Tested it on another script.
+    Must be before synth.speak()
+    */
+    // synth.cancel();
     synth.speak(utter[lang]);
 }
 
