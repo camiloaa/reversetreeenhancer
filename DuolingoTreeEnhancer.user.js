@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Duolingo Tree Enhancer
 // @namespace    https://github.com/camiloaa/duolingotreeenhancer
-// @version      1.3.3
+// @version      1.4
 // @description  Enhance Duolingo by customizing difficulty and providing extra functionality. Based on Guillaume Brunerie's ReverseTreeEnhancer
 // @author       Camilo Arboleda
 // @match        https://www.duolingo.com/*
@@ -328,6 +328,11 @@ var audio = [];
 var utter = [];
 var synth;
 
+// mute web audio
+function muteDuo(mute) {
+    window.Howler._muted = mute;
+}
+
 // Play an audio element.
 function playURL(url, lang, speaker_button) {
 
@@ -556,7 +561,7 @@ function insertNodeBefore(node, before) {
 
 // Say a sentence
 function say(itemToSay, lang, node, css) {
-    var sentence = itemToSay.type == "textarea" ? itemToSay.textContent : itemToSay.innerText;;
+    var sentence = itemToSay.type == "textarea" ? itemToSay.textContent : itemToSay.innerText;
     sentence = sentence.replace(/•/g, "");
     sentence = sentence.replace(/\.\./g, ".");
     sentence = sentence.replace(/\n/g," ");
@@ -1078,6 +1083,12 @@ function updateConfig() {
                 'type' : 'checkbox',
                 'default' : true
             },
+            'MUTED' : {
+                'label' : 'mute Duo',
+                'labelPos' : 'right',
+                'type' : 'checkbox',
+                'default' : false
+            },
             'SECTION_7' : {
                 'section' : [ '', '' ],
                 'type' : 'hidden'
@@ -1167,6 +1178,7 @@ function setConfigDefaults(treeType) {
         GM_config.fields['READ_SOURCE'].value = false;
         GM_config.fields['LISTENING'].value = true;
         GM_config.fields['SPEAKING'].value = true;
+        GM_config.fields['MUTED'].value = false;
         GM_config.fields['HIDE_PICS'].value = false;
         GM_config.fields['SPELL_CHECK'].value = false;
         GM_config.fields['HIDE_TRANSLATIONS'].value = false;
@@ -1179,6 +1191,7 @@ function setConfigDefaults(treeType) {
         GM_config.fields['READ_SOURCE'].value = true;
         GM_config.fields['LISTENING'].value = false;
         GM_config.fields['SPEAKING'].value = false;
+        GM_config.fields['MUTED'].value = false;
         GM_config.fields['HIDE_PICS'].value = true;
         GM_config.fields['SPELL_CHECK'].value = true;
         GM_config.fields['HIDE_TRANSLATIONS'].value = true;
@@ -1191,6 +1204,7 @@ function setConfigDefaults(treeType) {
         GM_config.fields['READ_SOURCE'].value = false;
         GM_config.fields['LISTENING'].value = true;
         GM_config.fields['SPEAKING'].value = true;
+        GM_config.fields['MUTED'].value = false;
         GM_config.fields['HIDE_PICS'].value = false;
         GM_config.fields['SPELL_CHECK'].value = true;
         GM_config.fields['HIDE_TRANSLATIONS'].value = false;
@@ -1203,6 +1217,7 @@ function setConfigDefaults(treeType) {
         GM_config.fields['READ_SOURCE'].value = true;
         GM_config.fields['LISTENING'].value = true;
         GM_config.fields['SPEAKING'].value = true;
+        GM_config.fields['MUTED'].value = false;
         GM_config.fields['HIDE_PICS'].value = false;
         GM_config.fields['SPELL_CHECK'].value = true;
         GM_config.fields['HIDE_TRANSLATIONS'].value = false;
@@ -1218,6 +1233,7 @@ function setConfigDefaults(treeType) {
     GM_config.fields['READ_SOURCE'].reload();
     GM_config.fields['LISTENING'].reload();
     GM_config.fields['SPEAKING'].reload();
+    GM_config.fields['MUTED'].reload();
     GM_config.fields['HIDE_PICS'].reload();
     GM_config.fields['SPELL_CHECK'].reload();
     GM_config.fields['HIDE_TRANSLATIONS'].reload();
@@ -1289,6 +1305,10 @@ function isSpeaking() {
     return (GM_config.get([ 'SPEAKING' ]));
 }
 
+function isMuted() {
+    return (GM_config.get([ 'MUTED' ]));
+}
+
 function updateButton() {
     var button = document.getElementById("reverse-tree-enhancer-button");
     if (button === null) {
@@ -1354,7 +1374,6 @@ function addButton() {
 /* Function dispatching the changes in the page to the other functions */
 function onChange(mutations) {
     var newclass = "";
-
     if (window.location.pathname == "/learn") {
         // General setup
         duoState = JSON.parse(localStorage.getItem('duo.state'));
@@ -1390,6 +1409,12 @@ function onChange(mutations) {
         //debug("Challenge: " + newclass);
 
         if (newclass != activeClass) {
+            isMuted() ? muteDuo(true) : muteDuo(false);
+            if (getFirstElementByDataTestValue("player-next").disabled !== true) {
+                muteDuo(false);
+            } else {
+                muteDuo(isMuted());
+            }
             //debug("Old class: " + activeClass);
             activeClass = newclass;
 
@@ -1419,6 +1444,7 @@ function onChange(mutations) {
             }
             else if (/selectTranscription/.test(newclass)) {
                 info("selectTranscription");
+                muteDuo(false);
             }
             else if (/select/.test(newclass)) {
                 challengeSelect(challenge);
@@ -1431,6 +1457,10 @@ function onChange(mutations) {
             }
             else if (/listen/.test(newclass)) {
                 challengeListen(challenge);
+                //if (isMuted()) muteDuo(true);
+                muteDuo(false);
+            } else if (/gapFill/.test(newclass)) {
+                muteDuo(false);
             }
         }
     }
